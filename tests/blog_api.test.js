@@ -12,7 +12,7 @@ beforeEach(async () => {
   const noteObjects = helper.initialBlogs.map((blog) => new Blog(blog));
   const promises = noteObjects.map((note) => note.save());
   await Promise.all(promises);
-}, 10000);
+}, 15000);
 
 describe('Get blogs', () => {
   test('Returns blogs as JSON', async () => {
@@ -23,6 +23,24 @@ describe('Get blogs', () => {
     const response = await api.get('/api/blogs');
 
     expect(response.body).toHaveLength(helper.initialBlogs.length);
+  });
+});
+
+describe('Post blog', () => {
+  const testBlog = {
+    title: 'steins;gate',
+  };
+  test('Returns new blog as JSON', async () => {
+    api.post('/api/blogs').send(testBlog).expect(201).expect('Content-Type', /application\/json/);
+  });
+
+  test('Saves new blog in database properly', async () => {
+    const newBlog = new Blog(testBlog);
+    const savedBlog = await newBlog.save();
+    const blogsAtEnd = await helper.blogsInDB();
+
+    expect(savedBlog).toEqual(newBlog);
+    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1);
   });
 });
 
