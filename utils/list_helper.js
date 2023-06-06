@@ -1,4 +1,4 @@
-const dummy = (blogs) => 1;
+const dummy = () => 1;
 
 const totalLikes = (blogs) => {
   if (!blogs.length) {
@@ -24,31 +24,68 @@ const favoriteBlog = (blogs) => {
   return blogs[favorite];
 };
 
+const mapArrayByRepetition = (array, property) => {
+  const map = {};
+
+  for (let i = 0; i < array.length; i += 1) {
+    if (!map[array[i][property]]) {
+      map[array[i][property]] = 1;
+    } else {
+      map[array[i][property]] += 1;
+    }
+  }
+
+  return map;
+};
+
+const mapArrayByValue = (array, property, value) => {
+  const map = {};
+
+  for (let i = 0; i < array.length; i += 1) {
+    if (!map[array[i][property]]) {
+      map[array[i][property]] = array[i][value];
+    } else {
+      map[array[i][property]] += array[i][value];
+    }
+  }
+  return map;
+};
+
+const findMaxInMap = (map, keyName, valueName) => {
+  let maxValue = 0;
+  let maxKey = '';
+
+  Object.keys(map).forEach((key) => {
+    if (map[key] > maxValue) {
+      maxKey = key;
+      maxValue = map[key];
+    }
+  });
+
+  return {
+    [keyName]: maxKey,
+    [valueName]: maxValue,
+  };
+};
+
 const mostBlogs = (blogs) => {
   if (!blogs.length) {
     return null;
   }
-  const authors = {};
 
-  for (let i = 0; i < blogs.length; i += 1) {
-    if (!authors[blogs[i].author]) {
-      authors[blogs[i].author] = 1;
-    } else {
-      authors[blogs[i].author] += 1;
-    }
+  const authors = mapArrayByRepetition(blogs, 'author');
+
+  return findMaxInMap(authors, 'author', 'blogs');
+};
+
+const mostLikes = (blogs) => {
+  if (!blogs.length) {
+    return null;
   }
 
-  let max = 0;
-  let author = '';
+  const authors = mapArrayByValue(blogs, 'author', 'likes');
 
-  Object.keys(authors).forEach((key) => {
-    if (authors[key] > max) {
-      author = key;
-      max = authors[key];
-    }
-  });
-
-  return { author, blogs: max };
+  return findMaxInMap(authors, 'author', 'likes');
 };
 
 module.exports = {
@@ -56,4 +93,5 @@ module.exports = {
   dummy,
   totalLikes,
   mostBlogs,
+  mostLikes,
 };

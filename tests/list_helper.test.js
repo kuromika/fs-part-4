@@ -86,7 +86,7 @@ describe('favorite blog', () => {
   });
 });
 
-describe('most blogs', () => {
+describe('author with most blogs', () => {
   test('empty list returns null', () => {
     expect(listHelper.mostBlogs([])).toBe(null);
   });
@@ -95,6 +95,19 @@ describe('most blogs', () => {
     expect(listHelper.mostBlogs(blogs)).toEqual({
       author: 'Robert C. Martin',
       blogs: 3,
+    });
+  });
+});
+
+describe('author with most likes', () => {
+  test('empty list returns null', () => {
+    expect(listHelper.mostLikes([])).toBe(null);
+  });
+
+  test('returns correct author Dijkstra', () => {
+    expect(listHelper.mostLikes(blogs)).toEqual({
+      author: 'Edsger W. Dijkstra',
+      likes: 17,
     });
   });
 });
