@@ -40,13 +40,20 @@ describe('Post blog', () => {
     api.post('/api/blogs').send(testBlog).expect(201).expect('Content-Type', /application\/json/);
   });
 
-  test('Saves new blog in database properly', async () => {
+  test('New post is reflected in database', async () => {
     const newBlog = new Blog(testBlog);
     const savedBlog = await newBlog.save();
     const blogsAtEnd = await helper.blogsInDB();
 
     expect(savedBlog).toEqual(newBlog);
     expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1);
+  });
+
+  test('Defaults to 0 likes if property is missing from request', async () => {
+    const blog = new Blog(testBlog);
+    const savedBlog = await blog.save();
+
+    expect(savedBlog.likes).toBe(0);
   });
 });
 

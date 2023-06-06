@@ -5,10 +5,16 @@ const mongoose = require('mongoose');
 const { MONGODB_URL } = require('./utils/config');
 const { dataMorgan, unknownEndpoint, errorHandler } = require('./utils/middleware');
 const blogRouter = require('./controllers/blogs');
+const { info } = require('./utils/logger');
 
 const app = express();
 
-mongoose.connect(MONGODB_URL);
+const connectMongoose = async () => {
+  await mongoose.connect(MONGODB_URL);
+  info('Connected to MongoDB');
+};
+
+connectMongoose();
 
 app.use(cors());
 app.use(express.static('build'));
