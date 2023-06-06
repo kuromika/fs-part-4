@@ -85,3 +85,16 @@ describe('favorite blog', () => {
     expect(listHelper.favoriteBlog(blogs)).toEqual(favorite);
   });
 });
+
+describe('most blogs', () => {
+  test('empty list returns null', () => {
+    expect(listHelper.mostBlogs([])).toBe(null);
+  });
+
+  test('returns correct author with number of blogs', () => {
+    expect(listHelper.mostBlogs(blogs)).toEqual({
+      author: 'Robert C. Martin',
+      blogs: 3,
+    });
+  });
+});
