@@ -16,7 +16,7 @@ const blogSchema = new mongoose.Schema({
 
 const Blog = mongoose.model('Blog', blogSchema);
 
-const mongoUrl = 'mongodb://localhost/bloglist';
+const mongoUrl = process.env.MONGODB_URL;
 mongoose.connect(mongoUrl);
 
 app.use(cors());
@@ -40,7 +40,7 @@ app.post('/api/blogs', (request, response) => {
     });
 });
 
-const PORT = 3003;
+const { PORT } = process.env;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
