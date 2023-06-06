@@ -16,7 +16,7 @@ beforeEach(async () => {
 
 describe('Get blogs', () => {
   test('Returns blogs as JSON', async () => {
-    api.get('/api/blogs').expect(200).expect('Content-Type', /application\/json/);
+    await api.get('/api/blogs').expect(200).expect('Content-Type', /application\/json/);
   });
 
   test('Blogs contain id property', async () => {
@@ -35,9 +35,10 @@ describe('Get blogs', () => {
 describe('Post blog', () => {
   const testBlog = {
     title: 'steins;gate',
+    url: 'asd',
   };
   test('Returns new blog as JSON', async () => {
-    api.post('/api/blogs').send(testBlog).expect(201).expect('Content-Type', /application\/json/);
+    await api.post('/api/blogs').send(testBlog).expect(201).expect('Content-Type', /application\/json/);
   });
 
   test('New post is reflected in database', async () => {
@@ -54,6 +55,13 @@ describe('Post blog', () => {
     const savedBlog = await blog.save();
 
     expect(savedBlog.likes).toBe(0);
+  });
+
+  test('Responds with bad request if title or url properties are missing', async () => {
+    const withoutURL = { likes: 10, title: 'random' };
+    await api.post('/api/blogs').send(withoutURL).expect(400);
+    const withoutTitle = { url: 'asd', likes: 5 };
+    await api.post('/api/blogs').send(withoutTitle).expect(400);
   });
 });
 
