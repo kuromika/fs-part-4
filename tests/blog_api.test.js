@@ -19,6 +19,12 @@ describe('Get blogs', () => {
     api.get('/api/blogs').expect(200).expect('Content-Type', /application\/json/);
   });
 
+  test('Blogs contain id property', async () => {
+    const response = await api.get('/api/blogs');
+    expect(response.body[0]).toHaveProperty('id');
+    expect(response.body[0].id).toBeDefined();
+  });
+
   test('Returns the correct amount of blogs', async () => {
     const response = await api.get('/api/blogs');
 
