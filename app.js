@@ -1,4 +1,5 @@
 const express = require('express');
+require('express-async-errors');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const { MONGODB_URL } = require('./utils/config');
