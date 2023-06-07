@@ -8,13 +8,10 @@ const api = supertest(app);
 
 beforeEach(async () => {
   await Blog.deleteMany({});
-
-  const noteObjects = helper.initialBlogs.map((blog) => new Blog(blog));
-  const promises = noteObjects.map((note) => note.save());
-  await Promise.all(promises);
+  await Blog.insertMany(helper.initialBlogs);
 }, 15000);
 
-describe('Get blogs', () => {
+describe('When getting blogs', () => {
   test('Returns blogs as JSON', async () => {
     await api.get('/api/blogs').expect(200).expect('Content-Type', /application\/json/);
   });
@@ -32,7 +29,7 @@ describe('Get blogs', () => {
   });
 });
 
-describe('Post blog', () => {
+describe('When posting a new blog', () => {
   const testBlog = {
     title: 'steins;gate',
     url: 'asd',
@@ -62,6 +59,20 @@ describe('Post blog', () => {
     await api.post('/api/blogs').send(withoutURL).expect(400);
     const withoutTitle = { url: 'asd', likes: 5 };
     await api.post('/api/blogs').send(withoutTitle).expect(400);
+  });
+});
+
+describe('deletion of a blog', () => {
+  test('Blog is deleted if id exists and is right', async () => {
+    const blogsInDB = await helper.blogsInDB();
+    await api.delete(`/api/blogs/${blogsInDB[0].id}`).expect(204);
+    const blogsAtEnd = await helper.blogsInDB();
+    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length - 1);
+  });
+
+  test('Responds with bad request if id is malformatted', async () => {
+    const fakeId = '12312asdas';
+    await api.delete(`/api/blogs/${fakeId}`).expect(400);
   });
 });
 

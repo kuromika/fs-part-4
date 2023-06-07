@@ -19,7 +19,10 @@ connectMongoose();
 app.use(cors());
 app.use(express.static('build'));
 app.use(express.json());
-app.use(dataMorgan);
+
+if (process.env.NODE_ENV !== 'test') {
+  app.use(dataMorgan);
+}
 
 app.use('/api/blogs', blogRouter);
 
