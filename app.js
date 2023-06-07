@@ -4,8 +4,8 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const { MONGODB_URL } = require('./utils/config');
 const { dataMorgan, unknownEndpoint, errorHandler } = require('./utils/middleware');
-const blogRouter = require('./controllers/blogs');
 const userRouter = require('./controllers/users');
+const blogRouter = require('./controllers/blogs');
 const { info } = require('./utils/logger');
 
 const app = express();

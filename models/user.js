@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
   },
   name: { type: String, required: true },
   hash: { type: String, required: true },
+  blogs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Blog' }],
 });
 
 userSchema.set('toJSON', {
@@ -17,4 +18,4 @@ userSchema.set('toJSON', {
   },
 });
 
-module.exports = mongoose.model('user', userSchema);
+module.exports = mongoose.model('User', userSchema);
