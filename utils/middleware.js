@@ -35,6 +35,10 @@ const errorHandler = (error, request, response, next) => {
     return response.status(400).send({ error: error.message });
   }
 
+  if (error.code === 11000 && error.keyPattern.username) {
+    return response.status(422).send({ error: 'username already exists' });
+  }
+
   return next(error);
 };
 
