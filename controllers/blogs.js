@@ -9,11 +9,11 @@ blogsRouter.get('/', async (request, response) => {
 });
 
 blogsRouter.post('/', async (request, response) => {
-  const decodedToken = jwt.verify(request.token, process.env.SECRET);
-  if (!decodedToken.id) {
-    return response.status(401).json({ error: 'invalid token' });
+  if (!request.user) {
+    return response.status(401).json({ error: 'A token is required' });
   }
-  const user = await User.findById(decodedToken.id);
+  console.log(request.user);
+  const user = await User.findById(request.user.id);
   const blog = new Blog({ ...request.body, user: user.id });
   const savedBlog = await blog.save();
   user.blogs = user.blogs.concat(savedBlog._id);
@@ -22,12 +22,11 @@ blogsRouter.post('/', async (request, response) => {
 });
 
 blogsRouter.delete('/:id', async (request, response) => {
-  const decodedToken = jwt.verify(request.token, process.env.SECRET);
-  if (!decodedToken.id) {
-    return response.status(401).json({ error: 'invalid token' });
+  if (!request.user) {
+    return response.status(401).json({ error: 'A token is required' });
   }
   const blog = await Blog.findById(request.params.id);
-  if (blog && blog.user.toString() !== decodedToken.id) {
+  if (blog && blog.user.toString() !== request.user.id.toString()) {
     return response.status(401).json({ error: 'only the blog creator can do this' });
   }
   await Blog.findByIdAndDelete(request.params.id);

@@ -4,7 +4,7 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const { MONGODB_URL } = require('./utils/config');
 const {
-  dataMorgan, unknownEndpoint, errorHandler, extractToken,
+  dataMorgan, unknownEndpoint, errorHandler, extractToken, extractUser,
 } = require('./utils/middleware');
 const userRouter = require('./controllers/users');
 const blogRouter = require('./controllers/blogs');
@@ -29,7 +29,7 @@ if (process.env.NODE_ENV !== 'test') {
   app.use(dataMorgan);
 }
 
-app.use('/api/blogs', blogRouter);
+app.use('/api/blogs', extractUser, blogRouter);
 app.use('/api/users', userRouter);
 app.use('/api/login', loginRouter);
 
