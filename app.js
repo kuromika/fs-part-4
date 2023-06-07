@@ -3,7 +3,9 @@ require('express-async-errors');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const { MONGODB_URL } = require('./utils/config');
-const { dataMorgan, unknownEndpoint, errorHandler } = require('./utils/middleware');
+const {
+  dataMorgan, unknownEndpoint, errorHandler, extractToken,
+} = require('./utils/middleware');
 const userRouter = require('./controllers/users');
 const blogRouter = require('./controllers/blogs');
 const loginRouter = require('./controllers/login');
@@ -21,6 +23,7 @@ connectMongoose();
 app.use(cors());
 app.use(express.static('build'));
 app.use(express.json());
+app.use(extractToken);
 
 if (process.env.NODE_ENV !== 'test') {
   app.use(dataMorgan);
