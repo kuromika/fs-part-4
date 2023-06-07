@@ -17,7 +17,7 @@ beforeEach(async () => {
     hash,
   });
   initialUser.save();
-}, 15000);
+}, 20000);
 
 describe('When there is a single user in the database', () => {
   test('can retrieve all the users', async () => {
@@ -43,6 +43,26 @@ describe('When there is a single user in the database', () => {
     expect(user.id).toBeDefined();
     expect(user).not.toHaveProperty('__v');
     expect(user).not.toHaveProperty('_id');
+  });
+
+  test('can not create a new user if password is less than 3 characters long', async () => {
+    await api.post('/api/users').send({
+      username: 'asd',
+      password: '12',
+      name: 'invalid password',
+    }).expect(400);
+    const users = await User.find({});
+    expect(users).toHaveLength(1);
+  });
+
+  test('can not create a new user if username is less than 3 characters long', async () => {
+    await api.post('/api/users').send({
+      username: 'as',
+      password: 'lol',
+      name: 'invalid username',
+    }).expect(400);
+    const users = await User.find({});
+    expect(users).toHaveLength(1);
   });
 });
 
