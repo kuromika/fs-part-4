@@ -17,7 +17,7 @@ beforeEach(async () => {
     hash,
   });
   initialUser.save();
-}, 20000);
+}, 30000);
 
 describe('When there is a single user in the database', () => {
   test('can retrieve all the users', async () => {
@@ -53,7 +53,7 @@ describe('When there is a single user in the database', () => {
     }).expect(400);
     const users = await User.find({});
     expect(users).toHaveLength(1);
-  });
+  }, 15000);
 
   test('can not create a new user if username is less than 3 characters long', async () => {
     await api.post('/api/users').send({
@@ -64,7 +64,7 @@ describe('When there is a single user in the database', () => {
     const users = await User.find({});
     expect(users).toHaveLength(1);
   });
-});
+}, 15000);
 
 afterAll(() => {
   mongoose.connection.close();

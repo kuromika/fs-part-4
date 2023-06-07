@@ -6,6 +6,7 @@ const { MONGODB_URL } = require('./utils/config');
 const { dataMorgan, unknownEndpoint, errorHandler } = require('./utils/middleware');
 const userRouter = require('./controllers/users');
 const blogRouter = require('./controllers/blogs');
+const loginRouter = require('./controllers/login');
 const { info } = require('./utils/logger');
 
 const app = express();
@@ -27,6 +28,7 @@ if (process.env.NODE_ENV !== 'test') {
 
 app.use('/api/blogs', blogRouter);
 app.use('/api/users', userRouter);
+app.use('/api/login', loginRouter);
 
 app.use(unknownEndpoint);
 app.use(errorHandler);
