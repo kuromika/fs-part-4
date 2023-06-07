@@ -39,6 +39,10 @@ const errorHandler = (error, request, response, next) => {
     return response.status(422).send({ error: 'username already exists' });
   }
 
+  if (error.name === 'JsonWebTokenError') {
+    return response.status(400).json({ error: error.message });
+  }
+
   return next(error);
 };
 
