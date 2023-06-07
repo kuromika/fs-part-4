@@ -22,8 +22,16 @@ blogsRouter.post('/', async (request, response) => {
 });
 
 blogsRouter.delete('/:id', async (request, response) => {
+  const decodedToken = jwt.verify(request.token, process.env.SECRET);
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: 'invalid token' });
+  }
+  const blog = await Blog.findById(request.params.id);
+  if (blog && blog.user.toString() !== decodedToken.id) {
+    return response.status(401).json({ error: 'only the blog creator can do this' });
+  }
   await Blog.findByIdAndDelete(request.params.id);
-  response.status(204).end();
+  return response.status(204).end();
 });
 
 blogsRouter.put('/:id', async (request, response) => {
