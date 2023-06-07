@@ -76,6 +76,26 @@ describe('deletion of a blog', () => {
   });
 });
 
+describe('update of a blog', () => {
+  const badId = '123aasasd';
+  const update = { likes: 100 };
+  const fakeId = '647fe1339787d733804791d3';
+
+  test('Blog is updated if id exists', async () => {
+    const blogsInDB = await helper.blogsInDB();
+    const response = await api.put(`/api/blogs/${blogsInDB[0].id}`).send(update).expect(200).expect('Content-Type', /application\/json/);
+    expect(response.body.likes).toBe(100);
+  });
+
+  test('responds with bad request if id is malformatted', async () => {
+    await api.put(`/api/blogs/${badId}`).send(update).expect(400);
+  });
+
+  test('responds with not found if id does not exist', async () => {
+    await api.put(`/api/blogs/${fakeId}`).send(update).expect(404);
+  });
+});
+
 afterAll(async () => {
   await mongoose.connection.close();
 });
