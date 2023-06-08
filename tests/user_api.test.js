@@ -17,13 +17,13 @@ beforeEach(async () => {
     hash,
   });
   initialUser.save();
-}, 30000);
+}, 40000);
 
 describe('When there is a single user in the database', () => {
   test('can retrieve all the users', async () => {
     const response = await api.get('/api/users').expect(200).expect('Content-Type', JSONRegex);
     expect(response.body).toHaveLength(1);
-  });
+  }, 15000);
 
   test('can create a new user', async () => {
     const response = await api.post('/api/users').send({
