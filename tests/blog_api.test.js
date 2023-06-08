@@ -29,7 +29,7 @@ beforeAll(async () => {
     password: 'password',
   });
   token = response.body.token;
-});
+}, 15000);
 
 beforeEach(async () => {
   await Blog.deleteMany({});
@@ -62,6 +62,10 @@ describe('When getting blogs', () => {
 });
 
 describe('When posting a new blog', () => {
+  test('Responds with 401 unathorized if no token is given', async () => {
+    await api.post('/api/blogs').send(testBlog).expect(401);
+  });
+
   test('Returns new blog as JSON', async () => {
     await api.post('/api/blogs').set('Authorization', `Bearer ${token}`).send(testBlog).expect(201)
       .expect('Content-Type', /application\/json/);
@@ -87,6 +91,8 @@ describe('When posting a new blog', () => {
 });
 
 describe('deletion of a blog', () => {
+  const fakeId = '12312asdas';
+
   test('Blog is deleted if id exists and is right', async () => {
     const blogsInDB = await helper.blogsInDB();
     await api.delete(`/api/blogs/${blogsInDB[0].id}`).set('Authorization', `Bearer ${token}`).expect(204);
@@ -95,8 +101,11 @@ describe('deletion of a blog', () => {
   });
 
   test('Responds with bad request if id is malformatted', async () => {
-    const fakeId = '12312asdas';
     await api.delete(`/api/blogs/${fakeId}`).set('Authorization', `Bearer ${token}`).expect(400);
+  });
+
+  test('Responds with unathorized if no token is given', async () => {
+    await api.delete(`/api/blogs/${fakeId}`).expect(401);
   });
 });
 
