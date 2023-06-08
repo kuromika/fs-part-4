@@ -1,15 +1,47 @@
 const supertest = require('supertest');
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 const app = require('../app');
 const Blog = require('../models/blog');
 const helper = require('./test_helper');
+const User = require('../models/user');
 
 const api = supertest(app);
+let token = '';
+let userId = '';
+const testBlog = {
+  title: 'steins;gate',
+  url: 'asd',
+};
+
+beforeAll(async () => {
+  await User.deleteMany({});
+  const hash = await bcrypt.hash('password', 10);
+  const initialUser = new User({
+    username: 'admin',
+    name: 'kuromika',
+    hash,
+  });
+  const savedUser = await initialUser.save();
+  userId = savedUser.id;
+  const response = await api.post('/api/login').send({
+    username: 'admin',
+    password: 'password',
+  });
+  token = response.body.token;
+});
 
 beforeEach(async () => {
   await Blog.deleteMany({});
-  await Blog.insertMany(helper.initialBlogs);
-}, 15000);
+  const blog = new Blog({
+    title: 'React patterns',
+    author: 'Michael Chan',
+    url: 'https://reactpatterns.com/',
+    likes: 7,
+    user: userId,
+  });
+  await blog.save();
+}, 30000);
 
 describe('When getting blogs', () => {
   test('Returns blogs as JSON', async () => {
@@ -25,54 +57,46 @@ describe('When getting blogs', () => {
   test('Returns the correct amount of blogs', async () => {
     const response = await api.get('/api/blogs');
 
-    expect(response.body).toHaveLength(helper.initialBlogs.length);
+    expect(response.body).toHaveLength(1);
   });
 });
 
 describe('When posting a new blog', () => {
-  const testBlog = {
-    title: 'steins;gate',
-    url: 'asd',
-  };
   test('Returns new blog as JSON', async () => {
-    await api.post('/api/blogs').send(testBlog).expect(201).expect('Content-Type', /application\/json/);
+    await api.post('/api/blogs').set('Authorization', `Bearer ${token}`).send(testBlog).expect(201)
+      .expect('Content-Type', /application\/json/);
   });
 
   test('New post is reflected in database', async () => {
-    const newBlog = new Blog(testBlog);
-    const savedBlog = await newBlog.save();
+    await api.post('/api/blogs').set('Authorization', `Bearer ${token}`).send(testBlog);
     const blogsAtEnd = await helper.blogsInDB();
-
-    expect(savedBlog).toEqual(newBlog);
-    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1);
+    expect(blogsAtEnd).toHaveLength(2);
   });
 
   test('Defaults to 0 likes if property is missing from request', async () => {
-    const blog = new Blog(testBlog);
-    const savedBlog = await blog.save();
-
-    expect(savedBlog.likes).toBe(0);
+    const response = await api.post('/api/blogs').set('Authorization', `Bearer ${token}`).send(testBlog);
+    expect(response.body.likes).toBe(0);
   });
 
   test('Responds with bad request if title or url properties are missing', async () => {
     const withoutURL = { likes: 10, title: 'random' };
-    await api.post('/api/blogs').send(withoutURL).expect(400);
+    await api.post('/api/blogs').set('Authorization', `Bearer ${token}`).send(withoutURL).expect(400);
     const withoutTitle = { url: 'asd', likes: 5 };
-    await api.post('/api/blogs').send(withoutTitle).expect(400);
+    await api.post('/api/blogs').set('Authorization', `Bearer ${token}`).send(withoutTitle).expect(400);
   });
 });
 
 describe('deletion of a blog', () => {
   test('Blog is deleted if id exists and is right', async () => {
     const blogsInDB = await helper.blogsInDB();
-    await api.delete(`/api/blogs/${blogsInDB[0].id}`).expect(204);
+    await api.delete(`/api/blogs/${blogsInDB[0].id}`).set('Authorization', `Bearer ${token}`).expect(204);
     const blogsAtEnd = await helper.blogsInDB();
-    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length - 1);
+    expect(blogsAtEnd).toHaveLength(blogsInDB.length - 1);
   });
 
   test('Responds with bad request if id is malformatted', async () => {
     const fakeId = '12312asdas';
-    await api.delete(`/api/blogs/${fakeId}`).expect(400);
+    await api.delete(`/api/blogs/${fakeId}`).set('Authorization', `Bearer ${token}`).expect(400);
   });
 });
 

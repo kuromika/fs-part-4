@@ -1,5 +1,4 @@
 const blogsRouter = require('express').Router();
-const jwt = require('jsonwebtoken');
 const Blog = require('../models/blog');
 const User = require('../models/user');
 
@@ -12,7 +11,6 @@ blogsRouter.post('/', async (request, response) => {
   if (!request.user) {
     return response.status(401).json({ error: 'A token is required' });
   }
-  console.log(request.user);
   const user = await User.findById(request.user.id);
   const blog = new Blog({ ...request.body, user: user.id });
   const savedBlog = await blog.save();

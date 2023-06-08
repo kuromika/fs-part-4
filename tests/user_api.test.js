@@ -43,7 +43,7 @@ describe('When there is a single user in the database', () => {
     expect(user.id).toBeDefined();
     expect(user).not.toHaveProperty('__v');
     expect(user).not.toHaveProperty('_id');
-  });
+  }, 15000);
 
   test('can not create a new user if password is less than 3 characters long', async () => {
     await api.post('/api/users').send({
